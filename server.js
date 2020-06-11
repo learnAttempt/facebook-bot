@@ -1,10 +1,12 @@
+'use strict'
 var fs = require('fs');
 var http = require('http');
 var https = require('https');
-var privateKey  = fs.readFileSync('sslcert/server.key', 'utf8');
-var certificate = fs.readFileSync('sslcert/server.crt', 'utf8');
+const credentials = {
+  key: fs.readFileSync('key.pem'),
+  cert: fs.readFileSync('cert.pem')
+};
 
-var credentials = {key: privateKey, cert: certificate};
 var express = require('express');
 
 const morgan = require('morgan');
@@ -17,6 +19,10 @@ app.use(morgan('dev')); // log every request to the console.
 app.use(bodyParser.urlencoded({ extended:false }));
 app.use(bodyParser.json());
 
+
+
+var httpServer = http.createServer(app);
+var httpsServer = https.createServer(credentials, app);
 
 require('./routes/webhook_verify')(app);
 app.listen(app.get('port'), function() {
